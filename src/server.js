@@ -1,6 +1,7 @@
 import { GraphQLServer } from "graphql-yoga";
 import logger from "morgan";
 
+import { uploadMiddleware, uploadController } from "./upload";
 import { authenticateJwt } from "./passport";
 import { isAuthenticated } from "./middlewares";
 import "./env";
@@ -17,6 +18,7 @@ const server = new GraphQLServer({
 
 server.express.use(logger("dev")); //grapql에는 express server가 내장되어 있다, middle ware는 이렇게 추가!
 server.express.use(authenticateJwt);
+server.express.post("/api/upload", uploadMiddleware, uploadController);
 
 server.start({ port: PORT }, () =>
   console.log(`Server running on  http://localhost:${PORT}`)

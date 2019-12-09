@@ -19,36 +19,42 @@ export default {
         .aggregate()
         .count(),
     fullName: parent => {
-        console.log("----------fullName----------")
+      console.log("----------fullName----------");
       return `${parent.firstName} ${parent.lastName}`;
     },
     isFollowing: async (parent, _, { request }) => {
-    console.log("----------isFollowing----------")
+      console.log("----------isFollowing----------");
       const { user } = request;
       const { id: parentId } = parent;
       try {
         return prisma.$exists.user({
-            AND: [
-              {
-                id: user.id
-              },
-              {
-                following_some: {
-                  id: parentId
-                }
+          AND: [
+            {
+              id: user.id
+            },
+            {
+              following_some: {
+                id: parentId
               }
-            ]
-          });
-        } catch {
-            return false;
-        }
-
+            }
+          ]
+        });
+      } catch {
+        return false;
+      }
     },
     isSelf: (parent, _, { request }) => {
-        console.log("----------isSelf----------")
-        const { user } = request;
-        const { id: parentId } = parent;
-        return user.id === parentId;
-      },
-  },
+      console.log("----------isSelf----------");
+      const { user } = request;
+      const { id: parentId } = parent;
+      return user.id === parentId;
+    },
+    postsCount: parent =>
+      prisma
+        .postsConnection({
+          where: { user: { id: parent.id } }
+        })
+        .aggregate()
+        .count()
+  }
 };

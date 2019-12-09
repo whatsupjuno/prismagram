@@ -3,28 +3,29 @@ import { prisma } from "../../../../generated/prisma-client";
 export default {
   Mutation: {
     sendMessage: async (_, args, { request, isAuthenticated }) => {
-        console.log("----------sendMessage----------")
+      console.log("----------sendMessage----------");
       isAuthenticated(request);
       const { user } = request;
       const { roomId, message, toId } = args;
       let room;
       if (roomId === undefined) {
         if (user.id !== toId) {
-          room = await prisma
-            .createRoom({
-              participants: {
-                connect: [{ id: toId }, { id: user.id }]
-              }
-            })
+          room = await prisma.createRoom({
+            participants: {
+              connect: [{ id: toId }, { id: user.id }]
+            }
+          });
         }
       } else {
-        room = await prisma.room({ id: roomId })
+        room = await prisma.room({ id: roomId });
       }
       if (!room) {
         throw Error("Room not found");
       }
       const participants = await prisma.room({ id: roomId }).participants();
-      const getTo = participants.filter(participant => participant.id !== user.id)[0];
+      const getTo = participants.filter(
+        participant => participant.id !== user.id
+      )[0];
       return prisma.createMessage({
         text: message,
         from: {
